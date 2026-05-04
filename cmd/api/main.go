@@ -10,6 +10,7 @@ import (
 func main() {
 	http.HandleFunc("/api/v1/calculate", handler.CalculatePunnet)
 	http.HandleFunc("/api/v1/linked-calculate", handler.CalculateLinkedPunnet)
+	http.HandleFunc("/api/v1/advanced-sex-linked", handler.CalculateAdvancedSexLinkedPunnet)
 
 	port := ":8080"
 
