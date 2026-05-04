@@ -11,6 +11,7 @@ func main() {
 	http.HandleFunc("/api/v1/calculate", handler.CalculatePunnet)
 	http.HandleFunc("/api/v1/linked-calculate", handler.CalculateLinkedPunnet)
 	http.HandleFunc("/api/v1/advanced-sex-linked", handler.CalculateAdvancedSexLinkedPunnet)
+	http.HandleFunc("/api/v1/nondisjunction", handler.CalculateNondisjunctionPunnet)
 
 	port := ":8080"
 

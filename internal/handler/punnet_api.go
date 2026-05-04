@@ -115,3 +115,44 @@ func CalculateAdvancedSexLinkedPunnet(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(results)
 }
+
+type NondisjunctionRequest struct {
+	FemalePhase  string `json:"female_phase"`
+	MaleGenotype string `json:"male_genotype"`
+	FemaleErr    bool   `json:"female_err"`
+	MaleErr      bool   `json:"male_err"`
+}
+
+func CalculateNondisjunctionPunnet(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed. Please use POST", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req NondisjunctionRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid JSON payload format", http.StatusBadRequest)
+		return
+	}
+
+	if !strings.Contains(req.FemalePhase, "/") {
+		http.Error(w, "Female phase must contain '/' (ex: AB/ab)", http.StatusBadRequest)
+		return
+	}
+
+	genoRatios := genetics.CalculateNondisjunctionCross(req.FemalePhase, req.MaleGenotype, req.FemaleErr, req.MaleErr)
+	phenoRatios := genetics.DecodeAdvancedSexLinkedPhenotype(genoRatios)
+
+	results := map[string]interface{}{
+		"female_parent":    req.FemalePhase,
+		"male_parent":      req.MaleGenotype,
+		"female_error":     req.FemaleErr,
+		"male_error":       req.MaleErr,
+		"genotype_ratios":  genoRatios,
+		"phenotype_ratios": phenoRatios,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(results)
+}
